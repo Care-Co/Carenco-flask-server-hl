@@ -9,14 +9,14 @@ from flask import Flask, Response, request, send_file, jsonify, render_template
 from requests_toolbelt import MultipartEncoder
 import random
 from key import *
-
+import tensorflow as tf
 
 
 class Foot:
   def __init__(self):
     self.data = None
     self.image_data = None
-    self.weight_coefficient = 3.7
+    self.model = tf.keras.models.load_model('./weight_regression.h5')
 
   def load_json(self, data):
     with open(data, 'r') as j:
@@ -80,7 +80,7 @@ class Foot:
     for data_element in weight_values:
       value = int(data_element[0].upper(), 16) * 16 + int(data_element[1].upper(), 16)
       weight_list.append(value)
-    weight = (weight_list[0] + weight_list[1]) / 7.2
+    weight = self.model.predict([weight_list])[0][0]
     return weight
 
   def generate_image(self, input_path, output_path):
